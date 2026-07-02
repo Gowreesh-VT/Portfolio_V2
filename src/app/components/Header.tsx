@@ -1,48 +1,52 @@
-import React from 'react';
-import { Inter } from 'next/font/google';
+"use client";
 
-const inter = Inter({ subsets: ['latin'] });
+import React from 'react';
 
 export default function Header() {
+  const navItems = [
+    { label: "Home", href: "#hero-section" },
+    { label: "About", href: "#about" },
+    { label: "Tech Stack", href: "#tech-stack" },
+    { label: "Projects", href: "#projects-pin-container" },
+  ];
+
+  const handleScroll = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    e.preventDefault();
+    const target = document.querySelector(href);
+    if (target) {
+      target.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
   return (
     <nav
       id="navbar"
-      className={`${inter.className} absolute top-0 left-0 w-full flex items-center justify-between px-6 py-6 md:px-10 md:py-6 opacity-0 pointer-events-auto z-50`}
+      className="fixed top-6 left-1/2 -translate-x-1/2 flex items-center justify-between px-6 py-3 rounded-full bg-black/60 border border-white/10 backdrop-blur-md shadow-xl text-white/90 opacity-0 pointer-events-auto z-50 w-[92vw] md:w-auto md:gap-10"
     >
-      <div className="font-bold text-lg tracking-wide uppercase nav-item">
-        DEVELOPER
+      <div className="font-bold text-sm tracking-widest uppercase nav-item">
+        Gowreesh
       </div>
-      <div className="hidden md:flex gap-8 text-[15px] font-medium">
-        <a href="#" className="relative group nav-item">
-          Home
-          <span className="absolute -bottom-1 left-0 w-full h-[2px] bg-[#1a1a1a]"></span>
-        </a>
-        <a href="#" className="hover:opacity-70 transition-opacity nav-item">
-          About
-        </a>
-        <a href="#" className="hover:opacity-70 transition-opacity nav-item">
-          Video
-        </a>
-        <a href="#" className="hover:opacity-70 transition-opacity nav-item">
-          Drops
-        </a>
-        <a href="#" className="hover:opacity-70 transition-opacity nav-item">
+      <div className="flex gap-4 md:gap-6 text-[12px] md:text-[13px] font-medium nav-item">
+        {navItems.map((item) => (
+          <a
+            key={item.label}
+            href={item.href}
+            onClick={(e) => handleScroll(e, item.href)}
+            className="hover:text-white/70 transition-colors relative group"
+          >
+            {item.label}
+            <span className="absolute bottom-[-4px] left-0 w-full h-[1.5px] bg-[#58a6ff] scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300"></span>
+          </a>
+        ))}
+      </div>
+      <div className="hidden md:flex items-center nav-item">
+        <a
+          href="#contact"
+          onClick={(e) => handleScroll(e, "#contact")}
+          className="bg-white text-black font-semibold rounded-full px-4 py-1.5 text-xs hover:bg-white/80 transition-colors"
+        >
           Contact
         </a>
-      </div>
-      <div className="flex items-center gap-6">
-        <button aria-label="Search" className="hover:opacity-70 nav-item">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <circle cx="11" cy="11" r="8"></circle>
-            <path d="M21 21L16.65 16.65"></path>
-          </svg>
-        </button>
-        <a href="#" className="text-[15px] font-medium hover:opacity-70 nav-item">
-          Log in
-        </a>
-        <button className="border border-[#1a1a1a] rounded-full px-5 py-2 text-[15px] font-medium hover:bg-[#1a1a1a] hover:text-[#f0ede8] transition-colors nav-item">
-          Sign Up
-        </button>
       </div>
     </nav>
   );
