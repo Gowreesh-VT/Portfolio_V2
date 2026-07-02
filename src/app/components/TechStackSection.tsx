@@ -1,458 +1,670 @@
 "use client";
 
-import React, { useRef } from "react";
+import React, { useRef, useEffect, useState } from "react";
+import * as THREE from "three";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
-// ──────────────────────────────────────────────────────────────────────────────
-// SVG Icons
-// ──────────────────────────────────────────────────────────────────────────────
+gsap.registerPlugin(ScrollTrigger);
 
-const ReactIcon = () => (
-  <svg viewBox="-11.5 -10.23174 23 20.46348" width="100%" height="100%" fill="none">
-    <circle cx="0" cy="0" r="2.05" fill="#61dafb" />
-    <g stroke="#61dafb" strokeWidth="1" fill="none">
-      <ellipse rx="11" ry="4.2" />
-      <ellipse rx="11" ry="4.2" transform="rotate(60)" />
-      <ellipse rx="11" ry="4.2" transform="rotate(120)" />
-    </g>
-  </svg>
-);
-
-const NextjsIcon = () => (
-  <svg viewBox="0 0 180 180" width="100%" height="100%">
-    <mask id="nxt-mask">
-      <circle cx="90" cy="90" r="90" fill="white" />
-    </mask>
-    <circle cx="90" cy="90" r="90" fill="black" stroke="white" strokeWidth="6" />
-    <g mask="url(#nxt-mask)">
-      <path d="M149.508 157.52L69.142 54H54v72h14.4V72.252l66.906 87.03c4.782-4.945 9.006-10.457 12.6-16.32-.42-1.782-1.02-3.66-1.8-5.442z" fill="white" />
-      <rect x="115" y="54" width="14" height="72" fill="white" />
-    </g>
-  </svg>
-);
-
-const TypeScriptIcon = () => (
-  <svg viewBox="0 0 100 100" width="100%" height="100%">
-    <rect width="100%" height="100%" fill="#3178c6" rx="8" />
-    <text x="50" y="65" fill="white" fontFamily="sans-serif" fontWeight="bold" fontSize="40" textAnchor="middle">TS</text>
-  </svg>
-);
-
-const TailwindIcon = () => (
-  <svg viewBox="0 0 24 24" width="100%" height="100%" fill="none">
-    <path d="M12.001 4.8c-3.2 0-5.2 1.6-6 4.8 1.2-1.6 2.6-2.2 4.2-1.8.913.228 1.565.89 2.288 1.624C13.666 10.618 15.027 12 18.001 12c3.2 0 5.2-1.6 6-4.8-1.2 1.6-2.6 2.2-4.2 1.8-.913-.228-1.565-.89-2.288-1.624C16.337 6.182 14.976 4.8 12.001 4.8zm-6 7.2c-3.2 0-5.2 1.6-6 4.8 1.2-1.6 2.6-2.2 4.2-1.8.913.228 1.565.89 2.288 1.624 1.177 1.194 2.538 2.576 5.512 2.576 3.2 0 5.2-1.6 6-4.8-1.2 1.6-2.6 2.2-4.2 1.8-.913-.228-1.565-.89-2.288-1.624C10.337 13.382 8.976 12 6.001 12z" fill="#38bdf8" />
-  </svg>
-);
-
-const NodejsIcon = () => (
-  <svg viewBox="0 0 256 292" width="100%" height="100%" fill="#339933">
-    <path d="M128 0L24 60v120l104 60 104-60V60L128 0zm-12 37.3v147.4L44 141.5V72.5l72-35.2zm24 0l72 35.2v69l-72 43.2V37.3z" />
-  </svg>
-);
-
-const PrismaIcon = () => (
-  <svg viewBox="0 0 100 100" width="100%" height="100%" fill="none">
-    <path d="M50 10 L85 75 L15 75 Z" stroke="#10b981" strokeWidth="6" fill="none" />
-    <path d="M50 10 L50 75" stroke="#10b981" strokeWidth="4" />
-    <path d="M15 75 L50 45 L85 75" stroke="#10b981" strokeWidth="4" />
-  </svg>
-);
-
-const PostgreSqlIcon = () => (
-  <svg viewBox="0 0 24 24" width="100%" height="100%" fill="none" stroke="#336791" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <ellipse cx="12" cy="5" rx="9" ry="3" />
-    <path d="M3 5v6c0 1.66 4 3 9 3s9-1.34 9-3V5" />
-    <path d="M3 11v6c0 1.66 4 3 9 3s9-1.34 9-3v-6" />
-  </svg>
-);
-
-const AwsIcon = () => (
-  <svg viewBox="0 0 24 24" width="100%" height="100%" fill="none" stroke="#FF9900" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M17.5 19A3.5 3.5 0 0 0 21 15.5c0-2.79-2.54-4.5-5-4.5-.47 0-.89.09-1.3.26A7 7 0 1 0 3 13.5A3.5 3.5 0 0 0 6.5 17h11" />
-    <text x="12" y="14" fill="#FF9900" fontFamily="sans-serif" fontWeight="bold" fontSize="5" textAnchor="middle">AWS</text>
-  </svg>
-);
-
-const DockerIcon = () => (
-  <svg viewBox="0 0 24 24" width="100%" height="100%" fill="#2496ED">
-    <path d="M13.962 6.075h-2.43V8.5h2.43V6.075zM11.22 6.075H8.788v2.425H11.22V6.075zM8.47 6.075H6.04v2.425H8.47V6.075zM11.22 3.364H8.788v2.425H11.22V3.364zM13.962 8.788h-2.43v2.425h2.43V8.788zM11.22 8.788H8.788v2.425H11.22V8.788zM8.47 8.788H6.04v2.425H8.47V8.788zM16.704 8.788h-2.43v2.425h2.43V8.788zM23.766 11.27c-.078-.052-.774-.51-2.18-.51-.318 0-.616.03-.89.09-.138-.61-.594-1.12-1.285-1.425l-.234-.1-.137.218c-.378.608-.737 1.29-.983 2.012H1.365a.434.434 0 00-.43.468c.036 1.488.583 4.225 2.825 5.513 1.344.773 2.923.86 4.697.26 1.405-.478 2.603-1.464 3.738-2.3v.014c.822-.614 1.637-1.23 2.656-1.57.822-.276 1.635-.332 2.417-.17l.228.048.066-.23c.125-.444.306-.995.535-1.48.55-.173 1.096-.134 1.575.105l.233.116.096-.232a4.49 4.49 0 00.344-1.242z" />
-  </svg>
-);
-
-const VercelIcon = () => (
-  <svg viewBox="0 0 24 24" width="100%" height="100%">
-    <path d="M24 22.525H0L12 1.475L24 22.525Z" fill="white" />
-  </svg>
-);
-
-const GithubActionsIcon = () => (
-  <svg viewBox="0 0 24 24" width="100%" height="100%" fill="none" stroke="#2088FF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <rect x="3" y="3" width="6" height="6" rx="1" />
-    <rect x="15" y="3" width="6" height="6" rx="1" />
-    <rect x="9" y="15" width="6" height="6" rx="1" />
-    <path d="M9 6h6" />
-    <path d="M6 9v3a3 3 0 0 0 3 3" />
-    <path d="M18 9v3a3 3 0 0 1-3 3" />
-  </svg>
-);
-
-// ──────────────────────────────────────────────────────────────────────────────
-// Data
-// ──────────────────────────────────────────────────────────────────────────────
-
-const sections = [
+// ─── Pipeline Stages ────────────────────────────────────────────────────────
+const stages = [
   {
-    label: "Frontend",
-    headline: "React · Next.js · TypeScript",
-    description: "Pixel-perfect interfaces, blazing fast delivery.",
-    image: "/images/frontend.png",
-    accentColor: "#61dafb",
-    shadowColor: "rgba(97,218,251,0.55)",
-    iconsLabel: "FRONTEND STACK",
-    icons: [
-      { name: "React", svg: <ReactIcon /> },
-      { name: "Next.js", svg: <NextjsIcon /> },
-      { name: "TypeScript", svg: <TypeScriptIcon /> },
-      { name: "Tailwind CSS", svg: <TailwindIcon /> },
-    ],
+    id: "code",
+    num: "01",
+    title: "Code",
+    description:
+      "Where it all starts. React, Next.js, and TypeScript power the interfaces people actually touch — fast, typed, and pixel-perfect.",
+    techs: ["React", "Next.js", "TypeScript", "Tailwind CSS"],
+    color: "#58a6ff",
+    glow: "rgba(88,166,255,0.3)",
+    dimGlow: "rgba(88,166,255,0.08)",
   },
   {
-    label: "Backend",
-    headline: "Node.js · Prisma · PostgreSQL",
-    description: "Scalable APIs with type-safe database access.",
-    image: "/images/backend.png",
-    accentColor: "#4ade80",
-    shadowColor: "rgba(74,222,128,0.55)",
-    iconsLabel: "BACKEND STACK",
-    icons: [
-      { name: "Node.js", svg: <NodejsIcon /> },
-      { name: "Prisma", svg: <PrismaIcon /> },
-      { name: "PostgreSQL", svg: <PostgreSqlIcon /> },
-    ],
+    id: "build",
+    num: "02",
+    title: "Build",
+    description:
+      "Scalable APIs and databases behind the UI. Node.js, Express.js, and GraphQL handle backend flows; MongoDB and PostgreSQL store it.",
+    techs: ["Node.js", "GraphQL", "PostgreSQL", "MongoDB"],
+    color: "#3fb950",
+    glow: "rgba(63,185,80,0.3)",
+    dimGlow: "rgba(63,185,80,0.08)",
   },
   {
-    label: "Cloud & Infra",
-    headline: "AWS · Docker · Vercel",
-    description: "Production-grade infrastructure that scales.",
-    image: "/images/cloud.png",
-    accentColor: "#FF9900",
-    shadowColor: "rgba(255,153,0,0.55)",
-    iconsLabel: "CLOUD & INFRA",
-    icons: [
-      { name: "AWS", svg: <AwsIcon /> },
-      { name: "Docker", svg: <DockerIcon /> },
-      { name: "Vercel", svg: <VercelIcon /> },
-      { name: "GitHub Actions", svg: <GithubActionsIcon /> },
-    ],
+    id: "test",
+    num: "03",
+    title: "Test",
+    description:
+      "Automated testing and DevOps practices that validate and prepare the codebase. Containers and pipelines make every release reproducible.",
+    techs: ["Docker", "Kubernetes", "GitHub Actions", "CI/CD"],
+    color: "#d2a8ff",
+    glow: "rgba(210,168,255,0.3)",
+    dimGlow: "rgba(210,168,255,0.08)",
+  },
+  {
+    id: "deploy",
+    num: "04",
+    title: "Deploy",
+    description:
+      "Production-grade infrastructure that scales without breaking. AWS, GCP, and Firebase environments provisioned via Terraform.",
+    techs: ["AWS", "GCP", "Firebase", "Terraform"],
+    color: "#ff9f1c",
+    glow: "rgba(255,159,28,0.3)",
+    dimGlow: "rgba(255,159,28,0.08)",
+  },
+  {
+    id: "live",
+    num: "05",
+    title: "Live",
+    description:
+      "Delivered to users — monitored, fast, and always on. Prometheus, Grafana, and CloudWatch keep production environments observable.",
+    techs: ["Vercel", "Prometheus", "Grafana", "CloudWatch"],
+    color: "#f85149",
+    glow: "rgba(248,81,73,0.3)",
+    dimGlow: "rgba(248,81,73,0.08)",
   },
 ];
 
-// ──────────────────────────────────────────────────────────────────────────────
-// Component
-// ──────────────────────────────────────────────────────────────────────────────
-
 export default function TechStackSection() {
-  const outerRef = useRef<HTMLElement>(null);
-  const stickyRef = useRef<HTMLDivElement>(null);
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const nodeRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const dotRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const descRef = useRef<HTMLParagraphElement>(null);
+  const [activeIndex, setActiveIndex] = useState(-1);
 
+  // ── Three.js background ────────────────────────────────────────────────────
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const W = window.innerWidth;
+    const H = window.innerHeight;
+
+    // Scene
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x09090b);
+    scene.fog = new THREE.FogExp2(0x09090b, 0.035);
+
+    // Camera
+    const camera = new THREE.PerspectiveCamera(60, W / H, 0.1, 200);
+
+    // Renderer
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+    renderer.setSize(W, H);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+    // ── Pipeline Geometry (CatmullRomCurve3) ─────────────────────────────
+    const points = [
+      new THREE.Vector3(0, 0, 10),
+      new THREE.Vector3(5, 2, 0),
+      new THREE.Vector3(15, -4, -15),
+      new THREE.Vector3(5, -8, -30),
+      new THREE.Vector3(-10, 0, -45),
+      new THREE.Vector3(-25, 10, -60),
+      new THREE.Vector3(-10, 20, -75),
+      new THREE.Vector3(10, 10, -90),
+      new THREE.Vector3(25, -5, -110),
+      new THREE.Vector3(10, -15, -130),
+      new THREE.Vector3(0, 0, -150)
+    ];
+    const curve = new THREE.CatmullRomCurve3(points, false, 'catmullrom', 0.6);
+    
+    const tubeGeo = new THREE.TubeGeometry(curve, 300, 2.5, 16, false);
+
+    // ── Flowing Energy Material (Shader) ──────────────────────────────────
+    const tubeMat = new THREE.ShaderMaterial({
+      uniforms: {
+        uTime: { value: 0 },
+        uColor: { value: new THREE.Color(0x3b82f6) } // Blue glow
+      },
+      vertexShader: `
+        varying vec2 vUv;
+        void main() {
+          vUv = uv;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+      `,
+      fragmentShader: `
+        uniform float uTime;
+        uniform vec3 uColor;
+        varying vec2 vUv;
+        
+        void main() {
+          // vUv.x is along tube length, vUv.y is around tube radius
+          float flow = sin(vUv.x * 60.0 - uTime * 8.0) * 0.5 + 0.5;
+          float lines = sin(vUv.y * 50.0) * 0.5 + 0.5;
+          
+          float intensity = flow * lines;
+          // Soft edge glow to make it look like a tube
+          float edge = pow(1.0 - abs(vUv.y - 0.5) * 2.0, 2.0);
+          
+          vec3 finalColor = uColor * (intensity * 1.5 + 0.5);
+          gl_FragColor = vec4(finalColor, (intensity * 0.6 + 0.1) * edge);
+        }
+      `,
+      transparent: true,
+      blending: THREE.AdditiveBlending,
+      side: THREE.DoubleSide,
+      depthWrite: false
+    });
+    const tube = new THREE.Mesh(tubeGeo, tubeMat);
+    scene.add(tube);
+
+    // Outer wireframe for structure
+    const wireMat = new THREE.MeshBasicMaterial({ 
+      color: 0x1e3a8a, 
+      wireframe: true, 
+      transparent: true, 
+      opacity: 0.15 
+    });
+    const wireTube = new THREE.Mesh(tubeGeo, wireMat);
+    scene.add(wireTube);
+
+    // ── Checkpoint Rings for Stages ───────────────────────────────────────
+    const rings: THREE.Mesh[] = [];
+    const stageColors = [0x58a6ff, 0x3fb950, 0xd2a8ff, 0xff9f1c, 0xf85149];
+    
+    for (let i = 0; i < 5; i++) {
+      // 0.1, 0.3, 0.5, 0.7, 0.9 - centers of the 5 scroll zones
+      const t = 0.1 + (i * 0.2); 
+      const pt = curve.getPointAt(t);
+      const tangent = curve.getTangentAt(t);
+      
+      const ringGeo = new THREE.TorusGeometry(3.2, 0.15, 16, 64);
+      const ringMat = new THREE.MeshBasicMaterial({ 
+        color: stageColors[i], 
+        transparent: true, 
+        opacity: 0.9 
+      });
+      const ring = new THREE.Mesh(ringGeo, ringMat);
+      
+      ring.position.copy(pt);
+      // Face along the tube
+      ring.lookAt(pt.clone().add(tangent));
+      
+      scene.add(ring);
+      rings.push(ring);
+
+      // Add a soft glow behind the ring
+      const glowGeo = new THREE.TorusGeometry(3.5, 0.6, 16, 32);
+      const glowMat = new THREE.MeshBasicMaterial({
+        color: stageColors[i],
+        transparent: true,
+        opacity: 0.15,
+        blending: THREE.AdditiveBlending
+      });
+      const glow = new THREE.Mesh(glowGeo, glowMat);
+      glow.position.copy(pt);
+      glow.lookAt(pt.clone().add(tangent));
+      scene.add(glow);
+    }
+
+    // ── Particles around the pipeline ─────────────────────────────────────
+    const COUNT = 1500;
+    const pos = new Float32Array(COUNT * 3);
+    const col = new Float32Array(COUNT * 3);
+    for (let i = 0; i < COUNT; i++) {
+      // distribute along curve
+      const t = Math.random();
+      const pt = curve.getPointAt(t);
+      
+      // random spread around the point
+      pos[i*3] = pt.x + (Math.random() - 0.5) * 40;
+      pos[i*3+1] = pt.y + (Math.random() - 0.5) * 40;
+      pos[i*3+2] = pt.z + (Math.random() - 0.5) * 40;
+      
+      col[i*3] = 0.2; col[i*3+1] = 0.4; col[i*3+2] = 0.8;
+    }
+    const pGeo = new THREE.BufferGeometry();
+    pGeo.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+    pGeo.setAttribute("color", new THREE.BufferAttribute(col, 3));
+    const pMat = new THREE.PointsMaterial({ size: 0.15, vertexColors: true, transparent: true, opacity: 0.4 });
+    const particles = new THREE.Points(pGeo, pMat);
+    scene.add(particles);
+
+    // ── Scroll camera drift ───────────────────────────────────────────────
+    let scrollProg = 0;
+    let targetScroll = 0;
+    
+    const st = ScrollTrigger.create({
+      trigger: sectionRef.current,
+      start: "top top",
+      end: "bottom bottom",
+      snap: {
+        snapTo: [0.1, 0.3, 0.5, 0.7, 0.9], // Stop at each stage
+        duration: { min: 0.2, max: 0.8 },
+        delay: 0.1,
+        ease: "power2.inOut"
+      },
+      onUpdate: (self) => {
+        scrollProg = self.progress;
+      },
+    });
+
+    // ── Animation loop ────────────────────────────────────────────
+    const startTime = performance.now();
+    let raf: number;
+
+    const tick = () => {
+      raf = requestAnimationFrame(tick);
+      const t = (performance.now() - startTime) / 1000; // elapsed seconds
+
+      // Flowing energy shader update
+      tubeMat.uniforms.uTime.value = t;
+      
+      // Slowly rotate rings
+      rings.forEach(ring => {
+        ring.rotation.z = t * 0.5;
+      });
+
+      // Smooth camera interpolation
+      targetScroll += (scrollProg - targetScroll) * 0.08;
+      
+      // Map scroll progress (0-1) to curve path (0-0.98 to not go off edge)
+      const camT = Math.min(targetScroll * 0.98, 0.98);
+      const camPos = curve.getPointAt(camT);
+      const lookAtPos = curve.getPointAt(Math.min(camT + 0.02, 1.0));
+      
+      camera.position.copy(camPos);
+      
+      // Slight camera wiggle for a realistic float
+      camera.position.x += Math.sin(t * 1.2) * 0.2;
+      camera.position.y += Math.cos(t * 1.5) * 0.2;
+      
+      camera.lookAt(lookAtPos);
+      // Tilt camera around z based on movement
+      camera.rotation.z += Math.sin(t * 0.8) * 0.05;
+
+      renderer.render(scene, camera);
+    };
+    tick();
+
+    // ── Resize ────────────────────────────────────────────────────────────
+    const onResize = () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    };
+    window.addEventListener("resize", onResize);
+
+    return () => {
+      cancelAnimationFrame(raf);
+      st.kill();
+      window.removeEventListener("resize", onResize);
+      renderer.dispose();
+      tubeGeo.dispose();
+      tubeMat.dispose();
+      wireMat.dispose();
+    };
+  }, []);
+
+  // ── GSAP scroll animations ─────────────────────────────────────────────────
   useGSAP(
     () => {
-      gsap.registerPlugin(ScrollTrigger);
-      if (!outerRef.current) return;
-
-      const mm = gsap.matchMedia();
-
-      mm.add("(min-width: 768px)", () => {
-        // ── Set initial states ──────────────────────────────────────────────
-        // Images: section 0 visible, others hidden above
-        gsap.set("#ts-img-0", { opacity: 1, scale: 1 });
-        gsap.set(["#ts-img-1", "#ts-img-2"], { opacity: 0, scale: 1.06 });
-
-        // Bottom info panels: section 0 visible at y=0, others hidden below
-        gsap.set("#ts-panel-0", { opacity: 1, y: 0, pointerEvents: "auto" });
-        gsap.set(["#ts-panel-1", "#ts-panel-2"], { opacity: 0, y: 80, pointerEvents: "none" });
-
-        // Left labels
-        gsap.set("#ts-lbl-0", { opacity: 1, color: "#fff" });
-        gsap.set(["#ts-lbl-1", "#ts-lbl-2"], { opacity: 0.28, color: "#555" });
-
-        // Left dots
-        gsap.set("#ts-dot-0", { scale: 1.6, opacity: 1 });
-        gsap.set(["#ts-dot-1", "#ts-dot-2"], { scale: 1, opacity: 0.3 });
-
-        // Accent lines inside each panel
-        gsap.set("#ts-line-0", { scaleX: 1, opacity: 1 });
-        gsap.set(["#ts-line-1", "#ts-line-2"], { scaleX: 0, opacity: 0 });
-
-        // ── GSAP timeline ───────────────────────────────────────────────────
-        // Section height = 300vh, timeline has 2 units
-        // Scroll 0–100vh  → t=0–0.667 (hold section 0)
-        // Scroll 100–200vh → t=0.667–1.333 (transition 0→1, hold 1)
-        // Scroll 200–300vh → t=1.333–2.0  (transition 1→2, hold 2)
-        //
-        // Transitions happen in the middle 40% of each 100vh window:
-        //  transition 0→1 centred at t=1.0 (range 0.75–1.25)
-        //  transition 1→2 centred at t=1.67 (range 1.42–1.92)
-
-        const tl = gsap.timeline({
-          scrollTrigger: {
-            trigger: outerRef.current,
-            start: "top top",
-            end: "bottom bottom",
-            scrub: 1.2,
-            invalidateOnRefresh: true,
-          },
-        });
-
-        // ── Transition 0 → 1 ────────────────────────────────────────────────
-        // outgoing
-        tl.to("#ts-img-0",   { opacity: 0, scale: 0.96, duration: 0.3 }, 0.75);
-        tl.to("#ts-panel-0", { opacity: 0, y: -60, pointerEvents: "none", duration: 0.28 }, 0.75);
-        tl.to("#ts-line-0",  { scaleX: 0, opacity: 0, duration: 0.2 }, 0.75);
-        tl.to("#ts-lbl-0",   { opacity: 0.28, color: "#555", duration: 0.25 }, 0.75);
-        tl.to("#ts-dot-0",   { scale: 1, opacity: 0.3, duration: 0.25 }, 0.75);
-        // incoming
-        tl.to("#ts-img-1",   { opacity: 1, scale: 1, duration: 0.35 }, 0.95);
-        tl.to("#ts-panel-1", { opacity: 1, y: 0, pointerEvents: "auto", duration: 0.35 }, 0.95);
-        tl.to("#ts-line-1",  { scaleX: 1, opacity: 1, duration: 0.25 }, 0.95);
-        tl.to("#ts-lbl-1",   { opacity: 1, color: "#fff", duration: 0.25 }, 0.95);
-        tl.to("#ts-dot-1",   { scale: 1.6, opacity: 1, duration: 0.25 }, 0.95);
-
-        // ── Transition 1 → 2 ────────────────────────────────────────────────
-        // outgoing
-        tl.to("#ts-img-1",   { opacity: 0, scale: 0.96, duration: 0.3 }, 1.42);
-        tl.to("#ts-panel-1", { opacity: 0, y: -60, pointerEvents: "none", duration: 0.28 }, 1.42);
-        tl.to("#ts-line-1",  { scaleX: 0, opacity: 0, duration: 0.2 }, 1.42);
-        tl.to("#ts-lbl-1",   { opacity: 0.28, color: "#555", duration: 0.25 }, 1.42);
-        tl.to("#ts-dot-1",   { scale: 1, opacity: 0.3, duration: 0.25 }, 1.42);
-        // incoming
-        tl.to("#ts-img-2",   { opacity: 1, scale: 1, duration: 0.35 }, 1.62);
-        tl.to("#ts-panel-2", { opacity: 1, y: 0, pointerEvents: "auto", duration: 0.35 }, 1.62);
-        tl.to("#ts-line-2",  { scaleX: 1, opacity: 1, duration: 0.25 }, 1.62);
-        tl.to("#ts-lbl-2",   { opacity: 1, color: "#fff", duration: 0.25 }, 1.62);
-        tl.to("#ts-dot-2",   { scale: 1.6, opacity: 1, duration: 0.25 }, 1.62);
-
-        return () => { tl.kill(); };
+      // ── Node staggered entry ─────────────────────────────────────────────
+      nodeRefs.current.forEach((node, i) => {
+        if (!node) return;
+        gsap.fromTo(
+          node,
+          { opacity: 0, scale: 0.85, y: 30 },
+          {
+            opacity: 1,
+            scale: 1,
+            y: 0,
+            duration: 0.6,
+            ease: "back.out(1.7)",
+            scrollTrigger: {
+              trigger: sectionRef.current,
+              start: () => `top+=${i * window.innerHeight} top`,
+              end: () => `top+=${(i + 1) * window.innerHeight} top`,
+              toggleActions: "play none none reverse",
+              invalidateOnRefresh: true,
+            },
+          }
+        );
       });
 
-      mm.add("(max-width: 767px)", () => {
-        const blocks = gsap.utils.toArray<HTMLElement>(".mob-tech-block");
-        blocks.forEach((block) => {
-          gsap.fromTo(
-            block,
-            { opacity: 0, y: 40 },
-            {
-              opacity: 1, y: 0, duration: 0.8, ease: "power2.out",
-              scrollTrigger: { trigger: block, start: "top 85%", toggleActions: "play none none reverse" },
-            }
-          );
-        });
+      // ── Active index from scroll progress ────────────────────────────────
+      ScrollTrigger.create({
+        trigger: sectionRef.current,
+        start: "top top",
+        end: "bottom bottom",
+        onUpdate: (self) => {
+          const idx = Math.floor(self.progress * 5);
+          setActiveIndex(Math.min(Math.max(idx, 0), 4));
+        },
       });
 
-      return () => { mm.revert(); };
+      // ── Connection lines flow animation ──────────────────────────────────
+      const tl = gsap.timeline({ repeat: -1 });
+      dotRefs.current.forEach((dot, i) => {
+        if (!dot) return;
+        tl.to(dot, { left: "100%", duration: 1.5, ease: "none" }, i * 0.8);
+      });
+
+      // ── Sync Active Description Glow/Fade ─────────────────────────────────
+      const descEl = descRef.current;
+      if (descEl && activeIndex >= 0) {
+        gsap.fromTo(
+          descEl,
+          { opacity: 0, y: 15, filter: "blur(4px)" },
+          { opacity: 1, y: 0, filter: "blur(0px)", duration: 0.5, ease: "power2.out" }
+        );
+      }
     },
-    { scope: outerRef }
+    { dependencies: [activeIndex], scope: sectionRef }
   );
+
+  const onNodeMove = (e: React.MouseEvent<HTMLDivElement>, i: number) => {
+    const card = nodeRefs.current[i];
+    if (!card) return;
+    const rect = card.getBoundingClientRect();
+    const x = e.clientX - rect.left - rect.width / 2;
+    const y = e.clientY - rect.top - rect.height / 2;
+    // Tilts card towards cursor
+    gsap.to(card, {
+      rotateY: x * 0.12,
+      rotateX: -y * 0.12,
+      transformPerspective: 600,
+      duration: 0.3,
+      ease: "power2.out",
+    });
+  };
+
+  const onNodeLeave = (i: number) => {
+    const card = nodeRefs.current[i];
+    if (!card) return;
+    gsap.to(card, { rotateY: 0, rotateX: 0, duration: 0.5, ease: "power2.out" });
+  };
 
   return (
     <section
-      ref={outerRef}
       id="tech-stack"
-      className="w-full bg-[#0a0a0a] text-white select-none"
-      style={{ height: "300vh" }}
+      ref={sectionRef}
+      className="relative"
+      style={{ height: "600vh", background: "#09090b" }}
     >
-      {/* ════════════════════════════════════════
-          DESKTOP sticky panel
-      ════════════════════════════════════════ */}
+      {/* ── Sticky viewport ─────────────────────────────────────────────── */}
       <div
-        ref={stickyRef}
-        className="hidden md:block sticky top-0 w-full overflow-hidden"
+        className="sticky top-0 w-full overflow-hidden"
         style={{ height: "100vh" }}
       >
-        {/* ── Top label ───────────────────────────────────────────────── */}
-        <div className="absolute top-0 left-0 right-0 z-30 flex flex-col items-center pt-9 pointer-events-none">
-          <p className="text-[0.7rem] font-bold tracking-[0.3em] text-[#444] uppercase mb-2">
-            Technologies
-          </p>
-          <h2 className="text-[2.8rem] lg:text-[3.2rem] font-[800] text-white tracking-tight leading-none">
-            My Tech Stack
-          </h2>
-        </div>
+        {/* Three.js canvas — the living background */}
+        <canvas
+          ref={canvasRef}
+          className="absolute inset-0 w-full h-full"
+          style={{ zIndex: 0 }}
+        />
 
-        {/* ── Left: section labels ─────────────────────────────────────── */}
-        <div className="absolute left-8 lg:left-12 top-1/2 -translate-y-1/2 z-30 flex flex-col gap-6">
-          {sections.map((s, i) => (
-            <div key={i} className="flex items-center gap-3">
-              <div
-                id={`ts-dot-${i}`}
-                style={{ width: 8, height: 8, borderRadius: "50%", backgroundColor: s.accentColor, flexShrink: 0 }}
-              />
-              <span
-                id={`ts-lbl-${i}`}
-                style={{ fontSize: "0.82rem", fontWeight: 600, letterSpacing: "0.04em", color: i === 0 ? "#fff" : "#555" }}
-              >
-                {s.label}
-              </span>
-            </div>
-          ))}
-        </div>
-
-        {/* ── Full-viewport image stack ────────────────────────────────── */}
-        {/* Images sit behind everything, edge-to-edge, with top/bottom padding for header + panel */}
-        <div className="absolute inset-0 flex items-center justify-center z-10" style={{ paddingTop: 110, paddingBottom: 160 }}>
-          {sections.map((s, i) => (
-            <img
-              key={i}
-              id={`ts-img-${i}`}
-              src={s.image}
-              alt={s.label}
-              loading="eager"
-              style={{
-                position: "absolute",
-                inset: 0,
-                width: "100%",
-                height: "100%",
-                objectFit: "contain",
-                objectPosition: "center",
-                mixBlendMode: "screen",
-                filter: "drop-shadow(0 40px 120px rgba(0,0,0,0.98))",
-                opacity: i === 0 ? 1 : 0,
-                pointerEvents: "none",
-              }}
-            />
-          ))}
-        </div>
-
-        {/* Subtle vignette so image edges blend into the dark bg */}
+        {/* Subtle vignette to keep edges dark */}
         <div
-          className="absolute inset-0 z-20 pointer-events-none"
+          className="absolute inset-0 pointer-events-none"
           style={{
-            background: "radial-gradient(ellipse at center, transparent 50%, #0a0a0a 100%)",
+            zIndex: 1,
+            background:
+              "radial-gradient(circle at center, transparent 35%, rgba(9,9,11,0.85) 100%)",
           }}
         />
 
-        {/* ── Bottom info panels ──────────────────────────────────────── */}
-        {/* Each panel absolutely stacked at the bottom; only the active one is visible */}
-        <div className="absolute bottom-0 left-0 right-0 z-30" style={{ padding: "0 2.5rem 2rem" }}>
-          {sections.map((s, i) => (
-            <div
-              key={i}
-              id={`ts-panel-${i}`}
+        {/* Analog film grain overlay */}
+        <div
+          className="absolute inset-0 pointer-events-none mix-blend-overlay opacity-[0.07]"
+          style={{ zIndex: 1 }}
+        >
+          <svg viewBox="0 0 200 200" className="w-full h-full opacity-40">
+            <filter id="tsGrain">
+              <feTurbulence
+                type="fractalNoise"
+                baseFrequency="0.8"
+                numOctaves="3"
+                stitchTiles="stitch"
+              />
+              <feColorMatrix type="saturate" values="0" />
+            </filter>
+            <rect width="100%" height="100%" filter="url(#tsGrain)" />
+          </svg>
+        </div>
+
+        {/* ── Content layer ─────────────────────────────────────────────── */}
+        <div
+          className="absolute inset-0 flex flex-col"
+          style={{ zIndex: 2 }}
+        >
+          {/* Top meta bar */}
+          <div className="flex justify-between items-center px-8 md:px-12 pt-7">
+            <p
+              className="font-sans text-[9px] tracking-[0.35em] uppercase text-white/18"
+            >
+              Tech Stack
+            </p>
+            <p
+              className="font-mono text-[9px] tracking-[0.2em] text-white/12"
+            >
+              {stages.length}-stage pipeline
+            </p>
+          </div>
+
+          {/* Section headline */}
+          <div className="flex flex-col items-center text-center mt-8 mb-4">
+            <p
+              className="font-mono text-[#58a6ff] text-[10px] font-bold tracking-[0.25em] uppercase mb-2.5"
+            >
+              [03] Tech Stack
+            </p>
+            <h2
+              className="text-white leading-none"
               style={{
-                position: "absolute",
-                bottom: "2rem",
-                left: "2.5rem",
-                right: "2.5rem",
-                opacity: i === 0 ? 1 : 0,
-                transform: i === 0 ? "translateY(0)" : "translateY(80px)",
+                fontFamily: "'Bebas Neue', sans-serif",
+                fontSize: "clamp(36px, 5.5vw, 76px)",
               }}
             >
-              <div
+              What I Use &amp; How I Build
+            </h2>
+          </div>
+
+          {/* ── Pipeline row ──────────────────────────────────────────────── */}
+          <div className="flex items-center justify-center px-4 md:px-6 flex-shrink-0 mt-auto">
+            {stages.map((stage, i) => {
+              const isActive = i === activeIndex;
+              const isPast = i < activeIndex;
+
+              return (
+                <React.Fragment key={stage.id}>
+                  {/* ── Node card ─────────────────────────────────────────── */}
+                  <div
+                    ref={(el) => { nodeRefs.current[i] = el; }}
+                    className="relative flex-shrink-0 cursor-pointer"
+                    style={{
+                      opacity: 0, // entry starts hidden
+                      transformStyle: "preserve-3d",
+                    }}
+                    onMouseMove={(e) => onNodeMove(e, i)}
+                    onMouseLeave={() => onNodeLeave(i)}
+                  >
+                    {/* Card body */}
+                    <div
+                      className="relative rounded-2xl border transition-[border-color,box-shadow,background] duration-500"
+                      style={{
+                        width: "clamp(120px, 14vw, 180px)",
+                        padding: "clamp(12px, 1.8vw, 22px)",
+                        background: isActive
+                          ? `radial-gradient(ellipse at 50% 0%, ${stage.glow} 0%, rgba(9,9,11,0.96) 65%)`
+                          : `radial-gradient(ellipse at 50% 0%, ${stage.dimGlow} 0%, rgba(9,9,11,0.92) 65%)`,
+                        border: `1px solid ${
+                          isActive
+                            ? stage.color
+                            : isPast
+                            ? "rgba(255,255,255,0.1)"
+                            : "rgba(255,255,255,0.055)"
+                        }`,
+                        boxShadow: isActive
+                          ? `0 0 28px ${stage.glow}, 0 0 56px ${stage.glow.replace("0.3", "0.12")}, inset 0 0 20px ${stage.glow.replace("0.3", "0.06")}`
+                          : "none",
+                        backdropFilter: "blur(14px)",
+                      }}
+                    >
+                      {/* Active pulse indicator */}
+                      {isActive && (
+                        <div
+                          className="absolute top-3 right-3 w-1.5 h-1.5 rounded-full"
+                          style={{
+                            background: stage.color,
+                            boxShadow: `0 0 8px ${stage.color}, 0 0 16px ${stage.color}`,
+                            animation: "ping-dot 1.5s ease-in-out infinite",
+                          }}
+                        />
+                      )}
+
+                      {/* Stage number */}
+                      <p
+                        className="font-mono mb-2.5"
+                        style={{
+                          fontSize: "clamp(9px, 0.95vw, 12px)",
+                          color: stage.color,
+                          opacity: isActive ? 0.8 : 0.4,
+                          letterSpacing: "0.18em",
+                          transition: "opacity 0.4s",
+                        }}
+                      >
+                        {stage.num}
+                      </p>
+
+                      {/* Title */}
+                      <h3
+                        className="font-bebas leading-none mb-3.5"
+                        style={{
+                          fontSize: "clamp(24px, 2.8vw, 36px)",
+                          color: isActive ? stage.color : "rgba(255,255,255,0.75)",
+                          transition: "color 0.4s",
+                        }}
+                      >
+                        {stage.title}
+                      </h3>
+
+                      {/* Tech list */}
+                      <div className="flex flex-col gap-[4px]">
+                        {stage.techs.map((tech) => (
+                          <span
+                            key={tech}
+                            className="font-mono block"
+                            style={{
+                              fontSize: "clamp(8.5px, 0.9vw, 11px)",
+                              color: isActive
+                                ? "rgba(255,255,255,0.6)"
+                                : isPast
+                                ? "rgba(255,255,255,0.22)"
+                                : "rgba(255,255,255,0.18)",
+                              letterSpacing: "0.04em",
+                              transition: "color 0.4s",
+                            }}
+                          >
+                            {tech}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* ── Connection between nodes ───────────────────────────── */}
+                  {i < stages.length - 1 && (
+                    <div
+                      className="relative flex-shrink-0 flex items-center overflow-hidden"
+                      style={{
+                        width: "clamp(20px, 3.5vw, 52px)",
+                        height: "2px",
+                      }}
+                    >
+                      {/* Static track */}
+                      <div
+                        className="absolute inset-0 transition-colors duration-500"
+                        style={{
+                          background:
+                            i < activeIndex
+                              ? `linear-gradient(90deg, ${stage.color}55, ${stages[i + 1].color}55)`
+                              : "rgba(255,255,255,0.05)",
+                        }}
+                      />
+
+                      {/* Travelling data packet */}
+                      <div
+                        ref={(el) => { dotRefs.current[i] = el; }}
+                        className="absolute top-1/2 -translate-y-1/2"
+                        style={{
+                          width: "clamp(16px, 2.5vw, 28px)",
+                          height: "1.5px",
+                          left: "-30px",
+                          background: `linear-gradient(90deg, transparent, ${stage.color}, ${stages[i + 1].color}, transparent)`,
+                          boxShadow: `0 0 8px ${stage.color}, 0 0 16px ${stage.color}50`,
+                        }}
+                      />
+
+                      {/* Arrow head */}
+                      <div
+                        className="absolute right-0 top-1/2 -translate-y-1/2 transition-colors duration-500"
+                        style={{
+                          width: 0,
+                          height: 0,
+                          borderTop: "3px solid transparent",
+                          borderBottom: "3px solid transparent",
+                          borderLeft: `4px solid ${
+                            i < activeIndex ? stages[i + 1].color : "rgba(255,255,255,0.1)"
+                          }`,
+                        }}
+                      />
+                    </div>
+                  )}
+                </React.Fragment>
+              );
+            })}
+          </div>
+
+          {/* ── Active stage description ───────────────────────────────────── */}
+          <div
+            className="flex-shrink-0 text-center mt-8 px-8"
+            style={{ minHeight: "4.5rem" }}
+          >
+            {activeIndex >= 0 && (
+              <p
+                ref={descRef}
+                className="font-sans text-white/80 mx-auto leading-relaxed"
                 style={{
-                  position: "relative",
-                  borderRadius: 16,
-                  overflow: "hidden",
-                  background: "rgba(8,8,8,0.88)",
-                  backdropFilter: "blur(30px)",
-                  WebkitBackdropFilter: "blur(30px)",
-                  border: "1px solid rgba(255,255,255,0.07)",
-                  boxShadow: "0 0 0 1px rgba(255,255,255,0.03), 0 32px 80px rgba(0,0,0,0.75)",
+                  fontSize: "clamp(13px, 1.5vw, 17px)",
+                  maxWidth: "600px",
+                  opacity: 0,
                 }}
               >
-                {/* Glowing accent top-bar */}
-                <div
-                  id={`ts-line-${i}`}
-                  style={{
-                    position: "absolute",
-                    top: 0, left: 0, right: 0,
-                    height: 2,
-                    transformOrigin: "left center",
-                    background: `linear-gradient(90deg, ${s.accentColor} 0%, transparent 65%)`,
-                    boxShadow: `0 0 20px ${s.shadowColor}`,
-                    opacity: i === 0 ? 1 : 0,
-                    transform: i === 0 ? "scaleX(1)" : "scaleX(0)",
-                  }}
-                />
-
-                <div style={{ display: "flex", alignItems: "center", gap: 24, padding: "18px 28px" }}>
-                  {/* Text side */}
-                  <div style={{ flexShrink: 0, minWidth: 210 }}>
-                    <div style={{ fontSize: "0.58rem", letterSpacing: "0.22em", fontWeight: 700, color: s.accentColor, textTransform: "uppercase", marginBottom: 6 }}>
-                      {s.iconsLabel}
-                    </div>
-                    <div style={{ fontSize: "1.1rem", fontWeight: 800, color: "#fff", letterSpacing: "-0.02em", lineHeight: 1.2 }}>
-                      {s.headline}
-                    </div>
-                    <div style={{ fontSize: "0.73rem", color: "#666", marginTop: 4, fontWeight: 500 }}>
-                      {s.description}
-                    </div>
-                  </div>
-
-                  {/* Divider */}
-                  <div style={{ width: 1, alignSelf: "stretch", background: "rgba(255,255,255,0.07)", flexShrink: 0 }} />
-
-                  {/* Icon row */}
-                  <div style={{ display: "flex", alignItems: "center", gap: 16, flex: 1, justifyContent: "flex-end", flexWrap: "wrap" }}>
-                    {s.icons.map((icon, j) => (
-                      <div key={j} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
-                        <div
-                          style={{
-                            width: 40, height: 40,
-                            display: "flex", alignItems: "center", justifyContent: "center",
-                            borderRadius: 10,
-                            background: "rgba(255,255,255,0.06)",
-                            border: "1px solid rgba(255,255,255,0.09)",
-                          }}
-                        >
-                          {icon.svg}
-                        </div>
-                        <span style={{ fontSize: "0.55rem", color: "#555", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" }}>
-                          {icon.name}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* ════════════════════════════════════════
-          MOBILE stacked layout
-      ════════════════════════════════════════ */}
-      <div className="md:hidden block w-full px-5 py-16 flex flex-col gap-16">
-        <div className="mb-2">
-          <h2 className="text-[2.2rem] font-[800] text-white tracking-tight leading-none">My Tech Stack</h2>
-          <p className="text-neutral-500 text-sm mt-2 font-medium">Built across the full spectrum</p>
-        </div>
-
-        {sections.map((s, i) => (
-          <div key={i} className="mob-tech-block flex flex-col gap-5">
-            <div className="flex items-center gap-3">
-              <div style={{ width: 3, height: 22, borderRadius: 2, backgroundColor: s.accentColor, boxShadow: `0 0 8px ${s.shadowColor}` }} />
-              <h3 className="text-lg font-bold text-white tracking-tight">{s.label}</h3>
-            </div>
-            <div className="w-full aspect-[16/10] flex items-center justify-center overflow-hidden">
-              <img src={s.image} alt={s.label} loading="lazy" className="w-full h-full object-contain pointer-events-none" style={{ filter: "drop-shadow(0 12px 28px rgba(0,0,0,0.8))" }} />
-            </div>
-            <div className="flex flex-col gap-3">
-              <div className="text-[0.65rem] uppercase tracking-[0.18em] font-bold pl-1" style={{ color: "#555" }}>{s.iconsLabel}</div>
-              <div className="grid grid-cols-2 gap-x-5 gap-y-4">
-                {s.icons.map((icon, j) => (
-                  <div key={j} className="flex items-center gap-3">
-                    <div className="w-6 h-6 flex items-center justify-center flex-shrink-0">{icon.svg}</div>
-                    <span className="font-mono text-xs text-neutral-300 font-medium">{icon.name}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
+                {stages[activeIndex].description}
+              </p>
+            )}
           </div>
-        ))}
+
+          {/* Bottom status bar */}
+          <div className="flex justify-between items-center px-8 md:px-12 mt-auto pb-7">
+            <p
+              className="font-mono text-[8px] tracking-[0.25em] uppercase transition-colors duration-500"
+              style={{ color: activeIndex >= 0 ? stages[activeIndex].color : "rgba(255,255,255,0.08)", opacity: 0.6 }}
+            >
+              {activeIndex >= 0 ? `stage ${stages[activeIndex].num} / ${stages[activeIndex].id}` : "—"}
+            </p>
+            <p
+              className="font-sans text-[8px] tracking-[0.25em] uppercase text-white/10"
+            >
+              Scroll ↓
+            </p>
+          </div>
+        </div>
       </div>
+
+      {/* Keyframe for the active pulse dot — injected via style tag */}
+      <style>{`
+        @keyframes ping-dot {
+          0%, 100% { transform: scale(1); opacity: 1; }
+          50% { transform: scale(1.8); opacity: 0.4; }
+        }
+      `}</style>
     </section>
   );
 }
