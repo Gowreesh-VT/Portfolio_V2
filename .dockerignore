@@ -1,0 +1,26 @@
+# Dependencies & Build artifacts
+node_modules
+.next
+out
+build
+
+# Git & IDE
+.git
+.gitignore
+.gitattributes
+.vscode
+.idea
+.DS_Store
+
+# Documentation & Docker local files
+Dockerfile*
+docker-compose*
+README.md
+DEPLOYMENT.md
+AGENTS.md
+CLAUDE.md
+LICENSE
+
+# Environment files (sensitive credentials handled via environment variables / EC2 .env file)
+.env*.local
+.env.production
