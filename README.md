@@ -4,6 +4,7 @@ A modern, high-performance portfolio website built with **Next.js 16 (App Router
 
 ---
 
+
 ## 📋 Table of Contents
 1. [💻 Local Development & Testing](#-local-development--testing)
 2. [☁️ AWS EC2 Setup (GUI Steps)](#️-aws-ec2-setup-gui-steps)
