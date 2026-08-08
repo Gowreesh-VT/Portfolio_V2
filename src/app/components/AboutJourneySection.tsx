@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -119,6 +119,7 @@ export default function AboutJourneySection() {
   const sectionRef = useRef<HTMLElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
   const pathRef = useRef<SVGPathElement>(null);
+  const [activeFilter, setActiveFilter] = useState<"all" | "story" | "experience">("all");
 
   useGSAP(() => {
     gsap.registerPlugin(ScrollTrigger);
@@ -209,6 +210,23 @@ export default function AboutJourneySection() {
           >
             Who I Am &amp; Where I&apos;ve Been
           </h2>
+
+          {/* Category filter tabs */}
+          <div className="flex gap-2 mt-8 p-1.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-md">
+            {(["all", "story", "experience"] as const).map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setActiveFilter(cat)}
+                className={`px-5 py-2 rounded-full text-xs font-mono font-semibold uppercase tracking-wider transition-all duration-300 cursor-pointer ${
+                  activeFilter === cat
+                    ? "bg-[#58a6ff] text-[#09090b] shadow-lg shadow-blue-500/20"
+                    : "text-white/60 hover:text-white hover:bg-white/5"
+                }`}
+              >
+                {cat === "all" ? "All Milestones" : cat === "story" ? "Core Story" : "Education & Work"}
+              </button>
+            ))}
+          </div>
         </div>
 
         <div id="about-story">

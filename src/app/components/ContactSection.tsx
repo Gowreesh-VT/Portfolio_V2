@@ -5,6 +5,7 @@ import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { Bebas_Neue, Inter, JetBrains_Mono } from "next/font/google";
+import { soundManager } from "../utils/SoundEffects";
 
 const bebasNeue = Bebas_Neue({ weight: "400", subsets: ["latin"] });
 const inter = Inter({ subsets: ["latin"] });
@@ -16,6 +17,7 @@ export default function ContactSection() {
   
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState("");
+  const [copied, setCopied] = useState(false);
 
   useGSAP(() => {
     gsap.registerPlugin(ScrollTrigger);
@@ -106,12 +108,27 @@ export default function ContactSection() {
             <h4 className={`${inter.className} text-sm font-bold uppercase tracking-wider opacity-50`}>
               Direct Contact
             </h4>
-            <a 
-              href="mailto:vt.gowreesh43@gmail.com" 
-              className={`${inter.className} text-xl hover:text-[#58a6ff] transition-colors`}
-            >
-              vt.gowreesh43@gmail.com
-            </a>
+            <div className="flex items-center gap-3">
+              <a 
+                href="mailto:vt.gowreesh43@gmail.com" 
+                className={`${inter.className} text-xl font-semibold hover:text-[#58a6ff] transition-colors`}
+              >
+                vt.gowreesh43@gmail.com
+              </a>
+              <button
+                type="button"
+                onClick={() => {
+                  navigator.clipboard.writeText("vt.gowreesh43@gmail.com");
+                  soundManager.playClick();
+                  setCopied(true);
+                  setTimeout(() => setCopied(false), 2500);
+                }}
+                className="px-3 py-1 text-xs font-mono rounded-full bg-[#1a1a1a]/10 hover:bg-[#1a1a1a]/20 border border-[#1a1a1a]/15 text-[#1a1a1a] transition-all cursor-pointer"
+                title="Copy email address"
+              >
+                {copied ? "✓ Copied" : "Copy Email"}
+              </button>
+            </div>
           </div>
         </div>
 
