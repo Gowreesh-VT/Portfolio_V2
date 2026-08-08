@@ -96,6 +96,58 @@ export default function ProjectsSection() {
   const track = useRef<HTMLDivElement>(null);
   const [selectedProject, setSelectedProject] = useState<typeof projectList[0] | null>(null);
 
+  const handleCardMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const card = e.currentTarget;
+    const rect = card.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+    
+    const rotateX = ((y - centerY) / centerY) * -12;
+    const rotateY = ((x - centerX) / centerX) * 12;
+
+    const sheen = card.querySelector(".card-sheen") as HTMLElement;
+
+    gsap.to(card, {
+      rotateX: rotateX,
+      rotateY: rotateY,
+      transformPerspective: 1000,
+      scale: 1.03,
+      duration: 0.3,
+      ease: "power2.out",
+    });
+
+    if (sheen) {
+      gsap.to(sheen, {
+        opacity: 0.8,
+        background: `radial-gradient(circle at ${x}px ${y}px, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0) 80%)`,
+        duration: 0.2,
+      });
+    }
+  };
+
+  const handleCardMouseLeave = (e: React.MouseEvent<HTMLDivElement>) => {
+    const card = e.currentTarget;
+    const sheen = card.querySelector(".card-sheen") as HTMLElement;
+
+    gsap.to(card, {
+      rotateX: 0,
+      rotateY: 0,
+      scale: 1,
+      duration: 0.5,
+      ease: "power2.out",
+    });
+
+    if (sheen) {
+      gsap.to(sheen, {
+        opacity: 0,
+        duration: 0.4,
+      });
+    }
+  };
+
   useGSAP(
     () => {
       gsap.registerPlugin(ScrollTrigger);
@@ -213,8 +265,8 @@ export default function ProjectsSection() {
     >
       {/* Header Label */}
       <div className="absolute top-8 left-6 md:left-10 z-20 pointer-events-none">
-        <h3 className="font-sans text-xs font-bold uppercase tracking-widest opacity-40">
-          Selected Works
+        <h3 className="font-mono text-xs font-bold uppercase tracking-[0.25em] text-[#58a6ff]">
+          [04] Projects Section · Selected Works
         </h3>
       </div>
 
@@ -341,8 +393,14 @@ export default function ProjectsSection() {
               {/* Right Column: Visual Mockup Showcase */}
               <div className="flex justify-center md:justify-end">
                 <div
-                  className={`relative w-[80vw] max-w-[450px] aspect-[4/3] rounded-2xl bg-[#eae7e1]/80 backdrop-blur-md border border-[#1a1a1a]/5 p-8 flex flex-col justify-between shadow-2xl transition-all duration-500 hover:scale-[1.02] ${project.accent}`}
+                  onMouseMove={handleCardMouseMove}
+                  onMouseLeave={handleCardMouseLeave}
+                  className={`relative w-[80vw] max-w-[450px] aspect-[4/3] rounded-2xl bg-[#eae7e1]/80 backdrop-blur-md border border-[#1a1a1a]/5 p-8 flex flex-col justify-between shadow-2xl transition-all duration-500 will-change-transform ${project.accent}`}
+                  style={{ transformStyle: "preserve-3d" }}
                 >
+                  {/* Dynamic Glass Sheen Layer */}
+                  <div className="card-sheen absolute inset-0 rounded-2xl pointer-events-none opacity-0 transition-opacity duration-300 z-20" />
+
                   {/* Subtle Glowing Gradient Sphere */}
                   <div className={`absolute -top-12 -right-12 w-32 h-32 rounded-full filter blur-[40px] opacity-25 mix-blend-multiply ${project.glow}`} />
 

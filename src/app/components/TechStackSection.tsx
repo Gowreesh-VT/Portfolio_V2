@@ -163,10 +163,20 @@ export default function TechStackSection() {
     const wireTube = new THREE.Mesh(tubeGeo, wireMat);
     scene.add(wireTube);
 
-    // ── Checkpoint Rings for Stages ───────────────────────────────────────
+    // ── Checkpoint Rings & Orbiting Tech Geometries for Stages ───────────
     const rings: THREE.Mesh[] = [];
+    const orbitingMeshes: { mesh: THREE.Mesh; center: THREE.Vector3; speed: number; axis: THREE.Vector3 }[] = [];
     const stageColors = [0x58a6ff, 0x3fb950, 0xd2a8ff, 0xff9f1c, 0xf85149];
     
+    // Polyhedron geometries for stage tech badges
+    const badgeGeos = [
+      new THREE.IcosahedronGeometry(1.2, 0),
+      new THREE.OctahedronGeometry(1.4, 0),
+      new THREE.DodecahedronGeometry(1.2, 0),
+      new THREE.TetrahedronGeometry(1.5, 0),
+      new THREE.TorusKnotGeometry(0.9, 0.25, 64, 16)
+    ];
+
     for (let i = 0; i < 5; i++) {
       // 0.1, 0.3, 0.5, 0.7, 0.9 - centers of the 5 scroll zones
       const t = 0.1 + (i * 0.2); 
@@ -200,6 +210,27 @@ export default function TechStackSection() {
       glow.position.copy(pt);
       glow.lookAt(pt.clone().add(tangent));
       scene.add(glow);
+
+      // Add 2 orbiting 3D tech badge meshes around each ring
+      const badgeMat = new THREE.MeshStandardMaterial({
+        color: stageColors[i],
+        wireframe: true,
+        transparent: true,
+        opacity: 0.75,
+        emissive: stageColors[i],
+        emissiveIntensity: 0.4
+      });
+      
+      const bMesh1 = new THREE.Mesh(badgeGeos[i], badgeMat);
+      bMesh1.position.copy(pt).add(new THREE.Vector3(4.5, 2, 0));
+      scene.add(bMesh1);
+
+      orbitingMeshes.push({
+        mesh: bMesh1,
+        center: pt.clone(),
+        speed: 1.2 + i * 0.2,
+        axis: new THREE.Vector3(0, 1, 0.5).normalize()
+      });
     }
 
     // ── Particles around the pipeline ─────────────────────────────────────
@@ -255,9 +286,17 @@ export default function TechStackSection() {
       // Flowing energy shader update
       tubeMat.uniforms.uTime.value = t;
       
-      // Slowly rotate rings
+      // Slowly rotate rings and orbiting tech polyhedra
       rings.forEach(ring => {
         ring.rotation.z = t * 0.5;
+      });
+
+      orbitingMeshes.forEach((item) => {
+        item.mesh.rotation.x = t * item.speed * 0.8;
+        item.mesh.rotation.y = t * item.speed * 1.2;
+        const angle = t * item.speed * 0.6;
+        item.mesh.position.x = item.center.x + Math.cos(angle) * 5;
+        item.mesh.position.y = item.center.y + Math.sin(angle) * 5;
       });
 
       // Smooth camera interpolation

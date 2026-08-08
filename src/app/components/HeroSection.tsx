@@ -5,6 +5,7 @@ import Image from "next/image";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import HeroCanvas from "./HeroCanvas";
 
 const slides = [
   { role: "Full-Stack Engineer", bgText: "ENGINEER" },
@@ -232,6 +233,8 @@ export default function HeroSection() {
         <div id="bg-layer" className="absolute inset-0 -z-10" style={{ background: "#0a0a0a" }} />
         {/* Cream base sits on top of the bg-layer once intro is done */}
         <div className="absolute inset-0 -z-20" style={{ background: "#f0ede8" }} />
+        {/* Interactive 3D WebGL Constellation Canvas */}
+        <HeroCanvas />
 
         {/* ── INTRO SCREEN ──────────────────────────────────────── */}
         <div
