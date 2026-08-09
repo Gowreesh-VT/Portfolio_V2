@@ -108,10 +108,10 @@ export default function ContactSection() {
             <h4 className={`${inter.className} text-sm font-bold uppercase tracking-wider opacity-50`}>
               Direct Contact
             </h4>
-            <div className="flex flex-wrap items-center gap-3">
+            <div className="flex items-center gap-3">
               <a 
                 href="mailto:vt.gowreesh43@gmail.com" 
-                className={`${inter.className} text-lg font-semibold hover:text-[#58a6ff] transition-colors break-all`}
+                className={`${inter.className} text-xl font-semibold hover:text-[#58a6ff] transition-colors`}
               >
                 vt.gowreesh43@gmail.com
               </a>
@@ -123,7 +123,7 @@ export default function ContactSection() {
                   setCopied(true);
                   setTimeout(() => setCopied(false), 2500);
                 }}
-                className="flex-shrink-0 px-3 py-1 text-xs font-mono rounded-full bg-[#1a1a1a]/10 hover:bg-[#1a1a1a]/20 border border-[#1a1a1a]/15 text-[#1a1a1a] transition-all cursor-pointer"
+                className="px-3 py-1 text-xs font-mono rounded-full bg-[#1a1a1a]/10 hover:bg-[#1a1a1a]/20 border border-[#1a1a1a]/15 text-[#1a1a1a] transition-all cursor-pointer"
                 title="Copy email address"
               >
                 {copied ? "✓ Copied" : "Copy Email"}

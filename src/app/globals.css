@@ -50,38 +50,3 @@ body {
 .hero-no-scroll {
   overflow: hidden;
 }
-
-/* ── Mobile & Touch Device Fixes ─────────────────────────────────── */
-
-/* Hide custom cursor ring on touch-only devices (phones/tablets with no mouse) */
-@media (hover: none) and (pointer: coarse) {
-  [data-cursor],
-  .custom-cursor,
-  .cursor-ring {
-    display: none !important;
-  }
-
-  /* Restore native cursor everywhere on touch */
-  *, *::before, *::after {
-    cursor: auto !important;
-  }
-  a, button, [role="button"] {
-    cursor: pointer !important;
-  }
-}
-
-/* Prevent any horizontal overflow on mobile */
-html, body {
-  max-width: 100vw;
-  overflow-x: hidden;
-}
-
-/* Use small-viewport height unit on mobile (accounts for browser chrome) */
-@supports (height: 100svh) {
-  .h-screen {
-    height: 100svh;
-  }
-  .min-h-screen {
-    min-height: 100svh;
-  }
-}
