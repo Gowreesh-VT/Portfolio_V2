@@ -278,7 +278,7 @@ export default function ProjectsSection() {
         {projectList.map((project, index) => (
           <div
             key={index}
-            className="project-panel w-screen h-screen flex items-center justify-center relative px-8 md:px-24 select-none overflow-hidden flex-shrink-0"
+            className="project-panel w-screen h-screen flex items-center justify-center relative px-6 md:px-24 select-none overflow-hidden flex-shrink-0"
           >
             {/* Giant Background Parallax Number */}
             <div
@@ -291,10 +291,10 @@ export default function ProjectsSection() {
             </div>
 
             {/* Content Cards Container */}
-            <div className="w-full max-w-[1200px] grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-20 items-center z-10">
+            <div className="w-full max-w-[1200px] grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-20 items-center z-10 h-full md:h-auto overflow-y-auto md:overflow-visible py-20 md:py-0">
               
               {/* Left Column: Metadata & Copy */}
-              <div className="flex flex-col items-start text-left">
+              <div className="flex flex-col items-start text-left flex-shrink-0">
                 <span className="font-sans text-sm font-bold text-[#1a1a1a]/60 uppercase tracking-wider mb-2">
                   {project.subtitle}
                 </span>

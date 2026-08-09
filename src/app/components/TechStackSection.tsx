@@ -419,6 +419,15 @@ export default function TechStackSection() {
     gsap.to(card, { rotateY: 0, rotateX: 0, duration: 0.5, ease: "power2.out" });
   };
 
+  // ── Detect touch/low-memory devices to skip heavy WebGL on mobile ──────────
+  const [canvasEnabled, setCanvasEnabled] = React.useState(true);
+  useEffect(() => {
+    const isTouchOnly = window.matchMedia("(hover: none) and (pointer: coarse)").matches;
+    const lowMemory = typeof (navigator as unknown as { deviceMemory?: number }).deviceMemory === "number"
+      && (navigator as unknown as { deviceMemory: number }).deviceMemory < 4;
+    if (isTouchOnly || lowMemory) setCanvasEnabled(false);
+  }, []);
+
   return (
     <section
       id="tech-stack"
@@ -431,12 +440,18 @@ export default function TechStackSection() {
         className="sticky top-0 w-full overflow-hidden"
         style={{ height: "100vh" }}
       >
-        {/* Three.js canvas — the living background */}
-        <canvas
-          ref={canvasRef}
-          className="absolute inset-0 w-full h-full"
-          style={{ zIndex: 0 }}
-        />
+        {/* Three.js canvas — the living background (skipped on touch/low-memory devices) */}
+        {canvasEnabled && (
+          <canvas
+            ref={canvasRef}
+            className="absolute inset-0 w-full h-full"
+            style={{ zIndex: 0 }}
+          />
+        )}
+        {/* Fallback solid bg for mobile */}
+        {!canvasEnabled && (
+          <div className="absolute inset-0" style={{ background: "#09090b", zIndex: 0 }} />
+        )}
 
         {/* Subtle vignette to keep edges dark */}
         <div
@@ -505,7 +520,50 @@ export default function TechStackSection() {
           </div>
 
           {/* ── Pipeline row ──────────────────────────────────────────────── */}
-          <div className="flex items-center justify-center px-4 md:px-6 flex-shrink-0 mt-auto">
+          {/* Mobile: vertical stack (hidden on md+) */}
+          <div className="md:hidden flex flex-col items-stretch gap-4 px-5 flex-shrink-0 mt-auto pb-4 w-full max-w-sm mx-auto">
+            {stages.map((stage, i) => {
+              const isActive = i === activeIndex;
+              const isPast = i < activeIndex;
+              return (
+                <div
+                  key={stage.id}
+                  className="rounded-xl border px-5 py-4 transition-all duration-500"
+                  style={{
+                    background: isActive
+                      ? `radial-gradient(ellipse at 50% 0%, ${stage.glow} 0%, rgba(9,9,11,0.96) 65%)`
+                      : `radial-gradient(ellipse at 50% 0%, ${stage.dimGlow} 0%, rgba(9,9,11,0.92) 65%)`,
+                    border: `1px solid ${
+                      isActive ? stage.color : isPast ? "rgba(255,255,255,0.1)" : "rgba(255,255,255,0.055)"
+                    }`,
+                    boxShadow: isActive ? `0 0 20px ${stage.glow}` : "none",
+                  }}
+                >
+                  <div className="flex items-center justify-between mb-1">
+                    <p className="font-mono text-[9px] tracking-[0.18em]" style={{ color: stage.color, opacity: isActive ? 0.9 : 0.4 }}>
+                      {stage.num}
+                    </p>
+                    {isActive && (
+                      <span className="w-1.5 h-1.5 rounded-full" style={{ background: stage.color, boxShadow: `0 0 8px ${stage.color}` }} />
+                    )}
+                  </div>
+                  <h3 className="font-bebas text-2xl leading-none mb-2" style={{ color: isActive ? stage.color : "rgba(255,255,255,0.75)" }}>
+                    {stage.title}
+                  </h3>
+                  <div className="flex flex-wrap gap-x-3 gap-y-1">
+                    {stage.techs.map((tech) => (
+                      <span key={tech} className="font-mono text-[10px]" style={{ color: isActive ? "rgba(255,255,255,0.6)" : "rgba(255,255,255,0.22)" }}>
+                        {tech}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Desktop: horizontal pipeline row (hidden on mobile) */}
+          <div className="hidden md:flex items-center justify-center px-4 md:px-6 flex-shrink-0 mt-auto">
             {stages.map((stage, i) => {
               const isActive = i === activeIndex;
               const isPast = i < activeIndex;
@@ -658,7 +716,7 @@ export default function TechStackSection() {
                 </React.Fragment>
               );
             })}
-          </div>
+          </div>{/* end desktop pipeline row */}
 
           {/* ── Active stage description ───────────────────────────────────── */}
           <div
