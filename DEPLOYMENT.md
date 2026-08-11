@@ -178,8 +178,6 @@ Now your website will automatically redirect HTTP traffic to secure `https://you
 
 ---
 
-
-
 ## 🛠️ Useful Management Commands
 
 - **View Live Container Logs**:
